@@ -14,8 +14,8 @@ Create a validation layer for 'User' which validates the username, password, and
 ```sh
 var validationLayer = new FluentValidationLayer<User>(validator =>
 {
-	validator.RuleFor(employee => employee.UserName).Length(1, 50).Matches("^[a-zA-Z'., -]*$");
-	validator.RuleFor(employee => employee.Password).Length(1, 50).Matches("^[a-zA-Z0-9]*$");
+	validator.RuleFor(user => user.UserName).Length(1, 50).Matches("^[a-zA-Z'., -]*$");
+	validator.RuleFor(user => user.Password).Length(1, 50).Matches("^[a-zA-Z0-9]*$");
 	validator.RuleFor(user => user.Balance).GreaterThanOrEqualTo(0);
 });
 ```
@@ -41,8 +41,8 @@ userSystem
 .AddLayer(new BenchmarkingLayer<User>())
 .AddLayer(new FluentValidationLayer<User>(validator =>
 {
-	validator.RuleFor(employee => employee.UserName).Length(1, 50).Matches("^[a-zA-Z'., -]*$");
-	validator.RuleFor(employee => employee.Password).Length(1, 50).Matches("^[a-zA-Z0-9]*$");
+	validator.RuleFor(user => user.UserName).Length(1, 50).Matches("^[a-zA-Z'., -]*$");
+	validator.RuleFor(user => user.Password).Length(1, 50).Matches("^[a-zA-Z0-9]*$");
 	validator.RuleFor(user => user.Balance).GreaterThanOrEqualTo(0);
 }))
 .AddLayer(new SqlServerSystemLayer<User>("server=[computer_name];database=[database_name];Trusted_Connection=SSPI", "Users"));
@@ -57,8 +57,6 @@ public async Task<ActionResult> Create([FromBody] UserDto user)
 {
 	try
 	{
-		NotNull.Check(nameof(user.UserName), user.UserName); NotNull.Check(nameof(user.Password), user.Password);
-		NotNull.Check(nameof(user.Balance), user.Balance);
 		var result = await _userSystem.Create(user);
 		return Ok(result);
 	}
@@ -81,7 +79,6 @@ public async Task<ActionResult> Read(Guid key)
 {
 	try
 	{
-		NotNull.Check(nameof(key), key);
 		var result = await _userSystem.Select(Where.Equal("Key", key ));
 		return Ok(result);
 	}
@@ -104,7 +101,6 @@ public async Task<ActionResult> EditUser([FromBody] UserDto user)
 {
 	try
 	{
-		NotNull.Check(nameof(user.Key), user.Key);
 		var result = await _userSystem.Update(user, Where.Equal(nameof(user.Key), user.Key));
 		return Ok(result);
 	}
@@ -126,7 +122,6 @@ public async Task<ActionResult> Edit(string key, string property, string value)
 {
 	try
 	{
-		NotNull.Check(nameof(key), key); NotNull.Check(nameof(property), property); NotNull.Check(nameof(value), value);
 		if (!property.Equals("Balance"))
 		{
 			var result = await _userSystem.Update(Set.Value(property, value).And("LastUpdatedOn", DateTime.Now), 
@@ -158,7 +153,6 @@ public async Task<ActionResult> Delete(Guid value)
 {
 	try
 	{
-		NotNull.Check("the value specified", value);
 		await _userSystem.Delete(Where.Equal("Key", value));
 		return Ok();
 	}
