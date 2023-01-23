@@ -72,8 +72,6 @@ namespace MicroEntities.Validation
 			throw new ArgumentException($"No instance of '{where.Property}' set to '{where.Value}' was found. Can't update.");
 		}
 
-		
-
 		private class EntityValidator : AbstractValidator<TEntity>
 		{
 

@@ -6,13 +6,8 @@ namespace MicroEntities.Utils
 {
 	public class BenchmarkingLayer<TEntity> : IEntitySystemLayer<TEntity> where TEntity : new()
 	{
-		public BenchmarkingLayer()
+		public BenchmarkingLayer(ILoggerFactory loggerFactory)
 		{
-			using var loggerFactory = LoggerFactory.Create(loggingBuilder => loggingBuilder
-									.SetMinimumLevel(LogLevel.Trace)
-									.AddDebug()
-									.AddConsole());
-
 			_logger = loggerFactory.CreateLogger<BenchmarkingLayer<TEntity>>();
 		}
 

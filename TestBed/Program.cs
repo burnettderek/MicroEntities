@@ -16,10 +16,14 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+using var loggerFactory = LoggerFactory.Create(loggingBuilder => loggingBuilder
+									.SetMinimumLevel(LogLevel.Trace)
+									.AddDebug()
+									.AddConsole());
 
 var employeeSystem = new PublicEntitySystem<EmployeeDto, Employee>();
 	employeeSystem
-	.AddLayer(new BenchmarkingLayer<Employee>())
+	.AddLayer(new BenchmarkingLayer<Employee>(loggerFactory))
 	.AddLayer(new FluentValidationLayer<Employee>(validator => 
 	{ 
 		validator.RuleFor(employee => employee.FirstName).Length(1, 50).Matches("^[a-zA-Z'., -]*$"); 
@@ -29,7 +33,7 @@ var employeeSystem = new PublicEntitySystem<EmployeeDto, Employee>();
 
 var userSystem = new PublicEntitySystem<UserDto, User>();
 userSystem
-.AddLayer(new BenchmarkingLayer<User>())
+.AddLayer(new BenchmarkingLayer<User>(loggerFactory))
 .AddLayer(new FluentValidationLayer<User>(validator =>
 {
 	validator.RuleFor(employee => employee.UserName).Length(1, 50).Matches("^[a-zA-Z'., -]*$");

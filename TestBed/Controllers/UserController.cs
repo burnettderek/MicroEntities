@@ -20,8 +20,6 @@ namespace TestBed.Controllers
 		{
 			try
 			{
-				NotNull.Check(nameof(user.UserName), user.UserName); NotNull.Check(nameof(user.Password), user.Password);
-				NotNull.Check(nameof(user.Balance), user.Balance);
 				var result = await _userSystem.Create(user);
 				return Ok(result);
 			}
@@ -40,7 +38,6 @@ namespace TestBed.Controllers
 		{
 			try
 			{
-				NotNull.Check(nameof(key), key);
 				var result = await _userSystem.Select(Where.Equal("Key", key ));
 				return Ok(result);
 			}
@@ -59,8 +56,6 @@ namespace TestBed.Controllers
 		{
 			try
 			{
-				NotNull.Check(nameof(property), property);
-				NotNull.Check(nameof(value), value);
 				var result = await _userSystem.Select(Where.Match(property, value + "%").
 													  And(Where.GreaterThanOrEqual("Balance", 0M)), 
 													  Sort.Descending("CreatedOn"));
@@ -82,7 +77,6 @@ namespace TestBed.Controllers
 		{
 			try
 			{
-				NotNull.Check(nameof(user.Key), user.Key);
 				var result = await _userSystem.Update(user, Where.Equal(nameof(user.Key), user.Key));
 				return Ok(result);
 			}
@@ -101,7 +95,6 @@ namespace TestBed.Controllers
 		{
 			try
 			{
-				NotNull.Check(nameof(key), key); NotNull.Check(nameof(property), property); NotNull.Check(nameof(value), value);
 				if (!property.Equals("Balance"))
 				{
 					var result = await _userSystem.Update(Set.Value(property, value).And("LastUpdatedOn", DateTime.Now), 
@@ -131,7 +124,6 @@ namespace TestBed.Controllers
 		{
 			try
 			{
-				NotNull.Check("the value specified", value);
 				await _userSystem.Delete(Where.Equal("Key", value));
 				return Ok();
 			}
