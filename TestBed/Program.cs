@@ -1,10 +1,8 @@
-using AutoMapper;
 using FluentValidation;
 using MicroEntities.Application;
 using MicroEntities.Data.SqlServer;
 using MicroEntities.Utils;
 using MicroEntities.Validation;
-using Microsoft.Extensions.DependencyInjection;
 using TestBed;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,6 +52,7 @@ if (app.Environment.IsDevelopment())
 	app.UseSwagger();
 	app.UseSwaggerUI();
 }
+app.UseRouting();
 
 app.UseHttpsRedirection();
 
