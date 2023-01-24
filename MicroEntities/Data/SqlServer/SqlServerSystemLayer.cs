@@ -1,5 +1,6 @@
 ﻿using FluentValidation.Results;
 using MicroEntities.Attributes;
+using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Data.SqlClient;
 using System.Reflection;
@@ -9,14 +10,17 @@ namespace MicroEntities.Data.SqlServer
 {
     public class SqlServerSystemLayer<TEntity> : IEntitySystemLayer<TEntity> where TEntity: new()
     {
-        public SqlServerSystemLayer(string connectionString, string tableName = null)
+        public SqlServerSystemLayer(ILoggerFactory logFactory, string connectionString, SchemaMode mode = SchemaMode.DataFirst, string? tableName = null)
         {
+			_log = logFactory.CreateLogger<SqlServerSystemLayer<TEntity>>();
             ConnectionString = connectionString;
             Properties = typeof(TEntity).GetProperties().ToList();
             InputProperties = Properties.Where(prop => !(prop.GetCustomAttributes(typeof(ReadOnly), true).Length > 0)).ToList();
             if (tableName == null)
                 TableName = typeof(TEntity).Name;
             else TableName = tableName;
+			if (mode == SchemaMode.CodeFirst)
+				EnforceSchema(logFactory);
         }
 
         public async Task<CreationResult> Create(TEntity entity)
@@ -321,10 +325,18 @@ namespace MicroEntities.Data.SqlServer
 			}
 			return result;
 		}
+
+		private void EnforceSchema(ILoggerFactory logFactory)
+		{
+			var enforcer = new SqlServerSchemaEnforcer<TEntity>(logFactory, ConnectionString, TableName);
+			enforcer.EnforceSchema().GetAwaiter().GetResult();
+		}
+
         protected string ConnectionString { get; set; }
         protected string TableName { get; set; }
         protected List<PropertyInfo> Properties = new List<PropertyInfo>();
         protected List<PropertyInfo> InputProperties = new List<PropertyInfo>();
-		protected IEntitySystemLayer<TEntity> _subLayer;
+		protected IEntitySystemLayer<TEntity>? _subLayer;
+		protected ILogger<SqlServerSystemLayer<TEntity>> _log;
     }
 }

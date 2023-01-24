@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Configuration;
 using FluentValidation;
 using MicroEntities.Application;
 using MicroEntities.Data.SqlServer;
@@ -8,41 +9,37 @@ using TestBed;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
+var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+var connectionString = config.GetValue<string>("DatabaseConnectionString");
 using var loggerFactory = LoggerFactory.Create(loggingBuilder => loggingBuilder
 									.SetMinimumLevel(LogLevel.Trace)
 									.AddDebug()
 									.AddConsole());
 
-var employeeSystem = new PublicEntitySystem<EmployeeDto, Employee>();
-	employeeSystem
-	.AddLayer(new BenchmarkingLayer<Employee>(loggerFactory))
-	.AddLayer(new FluentValidationLayer<Employee>(validator => 
-	{ 
-		validator.RuleFor(employee => employee.FirstName).Length(1, 50).Matches("^[a-zA-Z'., -]*$"); 
-		validator.RuleFor(employee => employee.LastName).Length(1, 50).Matches("^[a - zA - Z'., -]*$");
-	}))
-	.AddLayer(new SqlServerSystemLayer<Employee>("server=WSL3CNZZRG3;database=TestBed;Trusted_Connection=SSPI"));
-
-var userSystem = new PublicEntitySystem<UserDto, User>();
+var userSystem = new PublicEntitySystem<CustomerDto, Customer>();
 userSystem
-.AddLayer(new BenchmarkingLayer<User>(loggerFactory))
-.AddLayer(new FluentValidationLayer<User>(validator =>
+.AddLayer(new BenchmarkingLayer<Customer>(loggerFactory))
+.AddLayer(new FluentValidationLayer<Customer>(validator =>
 {
 	validator.RuleFor(employee => employee.UserName).Length(1, 50).Matches("^[a-zA-Z'., -]*$");
 	validator.RuleFor(employee => employee.Password).Length(1, 50).Matches("^[a-zA-Z0-9]*$");
 	validator.RuleFor(user => user.Balance).GreaterThanOrEqualTo(0);
 }))
-.AddLayer(new SqlServerSystemLayer<User>("server=WSL3CNZZRG3;database=TestBed;Trusted_Connection=SSPI", "Users"));
+.AddLayer(new SqlServerSystemLayer<Customer>(loggerFactory, connectionString, SchemaMode.CodeFirst, "Customers"));
+
+var orderSystem = new PublicEntitySystem<OrderDto, Order>();
+orderSystem
+.AddLayer(new BenchmarkingLayer<Order>(loggerFactory))
+.AddLayer(new SqlServerSystemLayer<Order>(loggerFactory, connectionString, SchemaMode.CodeFirst, "Orders"));
 
 
-builder.Services.AddSingleton(employeeSystem);
+builder.Services.AddSingleton(orderSystem);
 builder.Services.AddSingleton(userSystem);
+
+builder.Services.AddControllers();
+// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 

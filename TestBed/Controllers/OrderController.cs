@@ -1,6 +1,5 @@
 ﻿using MicroEntities;
 using MicroEntities.Application;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
@@ -8,19 +7,19 @@ namespace TestBed.Controllers
 {
 	[ApiController]
 	[Route("[controller]")]
-	public class EmployeeController : Controller
+	public class OrderController : Controller
 	{
-		public EmployeeController(PublicEntitySystem<EmployeeDto, Employee> orderSystem)
+		public OrderController(PublicEntitySystem<OrderDto, Order> orderSystem)
 		{
-			_employeeSystem = orderSystem;
+			_orderSystem = orderSystem;
 		}
 
 		[HttpPost]
-		public async Task<ActionResult> Create([FromBody] EmployeeDto input)
+		public async Task<ActionResult> Create([FromBody] OrderDto input)
 		{
 			try
 			{
-				var result = await _employeeSystem.Create(input);
+				var result = await _orderSystem.Create(input);
 				return Ok(result);
 			}
 			catch (ArgumentException ex)
@@ -38,7 +37,7 @@ namespace TestBed.Controllers
 		{
 			try
 			{
-				var result = await _employeeSystem.Select(Where.Equal("Id", id));
+				var result = await _orderSystem.Select(Where.Equal("Id", id));
 				return Ok(result);
 			}
 			catch (ArgumentException ex)
@@ -56,7 +55,7 @@ namespace TestBed.Controllers
 		{
 			try
 			{
-				var result = await _employeeSystem.Select(Where.Equal(property, value));
+				var result = await _orderSystem.Select(Where.Equal(property, value));
 				return Ok(result);
 			}
 			catch (ArgumentException ex)
@@ -71,11 +70,11 @@ namespace TestBed.Controllers
 
 
 		[HttpPut]
-		public async Task<ActionResult> Edit([FromBody] EmployeeDto employee)
+		public async Task<ActionResult> Edit([FromBody] OrderDto order)
 		{
 			try
 			{
-				var result = await _employeeSystem.Update(employee, Where.Equal("SSN", employee.SSN));
+				var result = await _orderSystem.Update(order, Where.Equal("Id", order.Id));
 				return Ok(result);
 			}
 			catch (ArgumentException ex)
@@ -88,12 +87,12 @@ namespace TestBed.Controllers
 			}
 		}
 
-		[HttpPut("/{ssn}/{property}/{value}")]
-		public async Task<ActionResult> Edit(string ssn, string property, string value)
+		[HttpPut("/{id}/{property}/{value}")]
+		public async Task<ActionResult> Edit(Guid id, string property, string value)
 		{
 			try
 			{
-				var result = await _employeeSystem.Update(Set.Value(property, value), Where.Equal("SSN", ssn));
+				var result = await _orderSystem.Update(Set.Value(property, value), Where.Equal("Id", id));
 				return Ok(result);
 			}
 			catch (ArgumentException ex)
@@ -107,12 +106,13 @@ namespace TestBed.Controllers
 		}
 
 
-		[HttpDelete]
-		public ActionResult Delete(int id)
+		[HttpDelete("{id}")]
+		public async Task<ActionResult> Delete(Guid id)
 		{
-			return View();
+			await _orderSystem.Delete(Where.Equal("id", id));
+			return Ok();
 		}
 
-		private PublicEntitySystem<EmployeeDto, Employee> _employeeSystem;
+		private PublicEntitySystem<OrderDto, Order> _orderSystem;
 	}
 }

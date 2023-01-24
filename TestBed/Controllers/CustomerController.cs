@@ -8,15 +8,15 @@ namespace TestBed.Controllers
 {
 	[ApiController]
 	[Route("[controller]")]
-	public class UserController : Controller
+	public class CustomerController : Controller
 	{
-		public UserController(PublicEntitySystem<UserDto, User> userSystem)
+		public CustomerController(PublicEntitySystem<CustomerDto, Customer> userSystem)
 		{
 			_userSystem = userSystem;
 		}
 
 		[HttpPost]
-		public async Task<ActionResult> Create([FromBody] UserDto user)
+		public async Task<ActionResult> Create([FromBody] CustomerDto user)
 		{
 			try
 			{
@@ -56,8 +56,7 @@ namespace TestBed.Controllers
 		{
 			try
 			{
-				var result = await _userSystem.Select(Where.Match(property, value + "%").
-													  And(Where.GreaterThanOrEqual("Balance", 0M)), 
+				var result = await _userSystem.Select(Where.Match(property, value + "%"), 
 													  Sort.Descending("CreatedOn"));
 				return Ok(result);
 			}
@@ -73,7 +72,7 @@ namespace TestBed.Controllers
 
 
 		[HttpPut("/edit")]
-		public async Task<ActionResult> EditUser([FromBody] UserDto user)
+		public async Task<ActionResult> EditUser([FromBody] CustomerDto user)
 		{
 			try
 			{
@@ -137,6 +136,6 @@ namespace TestBed.Controllers
 			}
 		}
 
-		private PublicEntitySystem<UserDto, User> _userSystem;
+		private PublicEntitySystem<CustomerDto, Customer> _userSystem;
 	}
 }
