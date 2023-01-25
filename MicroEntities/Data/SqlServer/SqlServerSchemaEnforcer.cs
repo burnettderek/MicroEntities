@@ -55,24 +55,25 @@ namespace MicroEntities.Data.SqlServer
 			var builder = new StringBuilder();
 			foreach (var property in Properties)
 			{
-				string type = GetType(property);
+				var maxStorageSize = property.GetCustomAttributes(typeof(MaxStorageSize), true).FirstOrDefault() as MaxStorageSize;
+				string type = GetType(property, maxStorageSize);
 				builder.Append($"\n[{property.Name}] {type}");
 				if (property != Properties.Last()) builder.Append(",");
 			}
 			return builder.ToString();
 		}
 
-		private string GetType(PropertyInfo property)
+		private string GetType(PropertyInfo property, MaxStorageSize maxStorageSize)
 		{
 			string type;
 			var underlyingType = Nullable.GetUnderlyingType(property.PropertyType);
 			if (underlyingType != null)
 			{
-				type = $"{ToSql(underlyingType.Name)} NULL {GetConstraints(property)}";
+				type = $"{ToSql(underlyingType.Name, maxStorageSize)} NULL {GetConstraints(property)}";
 			}
 			else
 			{
-				type = $"{ToSql(property.PropertyType.Name)} NOT NULL {GetConstraints(property)}";
+				type = $"{ToSql(property.PropertyType.Name, maxStorageSize)} NOT NULL {GetConstraints(property)}";
 			}
 
 			return type;
@@ -141,8 +142,8 @@ namespace MicroEntities.Data.SqlServer
 
 		private void InitializeTypeMap()
 		{
-			_typeMap[typeof(string).Name] = SqlDbType.NVarChar + "(max)";
-			_typeMap[typeof(char[]).Name] = SqlDbType.NVarChar + "(max)";
+			_typeMap[typeof(string).Name] = SqlDbType.NVarChar.ToString();
+			_typeMap[typeof(char[]).Name] = SqlDbType.NVarChar.ToString();
 			_typeMap[typeof(int).Name] = SqlDbType.Int.ToString();
 			_typeMap[typeof(Int32).Name] = SqlDbType.Int.ToString();
 			_typeMap[typeof(Int16).Name] = SqlDbType.SmallInt.ToString();
@@ -159,9 +160,16 @@ namespace MicroEntities.Data.SqlServer
 			_typeMap[typeof(Guid).Name] = SqlDbType.UniqueIdentifier.ToString();
 		}
 
-		private string ToSql(string dotNetType)
+		private string ToSql(string dotNetType, MaxStorageSize maxStorageSize)
 		{
-			return _typeMap[dotNetType];
+			if (maxStorageSize == null)
+			{
+				if (dotNetType.Equals("String") || dotNetType.Equals("Char[]") || dotNetType.Equals("Byte[]"))
+					return _typeMap[dotNetType] + "(max)";
+				return _typeMap[dotNetType];
+			}
+			else
+				return $"{_typeMap[dotNetType]}({maxStorageSize.SizeInBytes})";
 		}
 
 		protected readonly ILogger<SqlServerSchemaEnforcer<TEntity>> _log;

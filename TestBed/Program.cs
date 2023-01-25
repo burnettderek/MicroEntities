@@ -21,8 +21,8 @@ userSystem
 .AddLayer(new BenchmarkingLayer<Customer>(loggerFactory))
 .AddLayer(new FluentValidationLayer<Customer>(validator =>
 {
-	validator.RuleFor(employee => employee.UserName).Length(1, 50).Matches("^[a-zA-Z'., -]*$");
-	validator.RuleFor(employee => employee.Password).Length(1, 50).Matches("^[a-zA-Z0-9]*$");
+	validator.RuleFor(employee => employee.FirstName).Length(1, 50).Matches("^[a-zA-Z0-9'., -]*$");
+	validator.RuleFor(employee => employee.LastName).Length(1, 50).Matches("^[a-zA-Z0-9-]*$");
 	validator.RuleFor(user => user.Balance).GreaterThanOrEqualTo(0);
 }))
 .AddLayer(new SqlServerSystemLayer<Customer>(loggerFactory, connectionString, SchemaMode.CodeFirst, "Customers"));
@@ -31,6 +31,13 @@ var orderSystem = new PublicEntitySystem<OrderDto, Order>();
 orderSystem
 .AddLayer(new BenchmarkingLayer<Order>(loggerFactory))
 .AddLayer(new SqlServerSystemLayer<Order>(loggerFactory, connectionString, SchemaMode.CodeFirst, "Orders"));
+
+/*for(int i = 0; i < 10000; i++)
+{
+	var balance = (decimal)(new Random().NextDouble()) * 100M;
+	var customer = new CustomerDto() { FirstName = Guid.NewGuid().ToString(), LastName = Guid.NewGuid().ToString(), Balance = balance };
+	await userSystem.Create(customer);
+}*/
 
 
 builder.Services.AddSingleton(orderSystem);

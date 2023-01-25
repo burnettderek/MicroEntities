@@ -42,7 +42,7 @@ namespace MicroEntities.Utils
 			timer.Start();
 			var result = await _layer.Select(clause, sort);
 			timer.Stop();
-			_logger.LogDebug($"Select '{EntityName}' completed in {timer.ElapsedMilliseconds}ms.");
+			_logger.LogDebug($"Select '{EntityName}' completed in {timer.ElapsedMilliseconds}ms, returning {result?.Count()} records.");
 			return result;
 		}
 		
