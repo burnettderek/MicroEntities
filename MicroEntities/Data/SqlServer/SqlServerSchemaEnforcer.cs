@@ -1,4 +1,5 @@
-﻿using MicroEntities.Attributes;
+﻿using AutoMapper.Internal;
+using MicroEntities.Attributes;
 using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Data.SqlClient;
@@ -65,18 +66,17 @@ namespace MicroEntities.Data.SqlServer
 
 		private string GetType(PropertyInfo property, MaxStorageSize maxStorageSize)
 		{
-			string type;
-			var underlyingType = Nullable.GetUnderlyingType(property.PropertyType);
-			if (underlyingType != null)
+			var type = property.PropertyType;
+			var nullQualifier = "NOT NULL";
+			if (type.IsNullableType())
 			{
-				type = $"{ToSql(underlyingType.Name, maxStorageSize)} NULL {GetConstraints(property)}";
+				nullQualifier = "NULL";
+				type = Nullable.GetUnderlyingType(property.PropertyType);
 			}
-			else
-			{
-				type = $"{ToSql(property.PropertyType.Name, maxStorageSize)} NOT NULL {GetConstraints(property)}";
-			}
-
-			return type;
+			else if (type.IsEnum)
+				type = Enum.GetUnderlyingType(property.PropertyType);
+			
+			return $"{ToSql(type.Name, maxStorageSize)} {nullQualifier} {GetConstraints(property)}";
 		}
 
 		private string GetConstraints(PropertyInfo property)

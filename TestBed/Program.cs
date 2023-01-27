@@ -16,8 +16,8 @@ using var loggerFactory = LoggerFactory.Create(loggingBuilder => loggingBuilder
 									.AddDebug()
 									.AddConsole());
 
-var userSystem = new PublicEntitySystem<CustomerDto, Customer>();
-userSystem
+var customerSystem = new PublicEntitySystem<CustomerDto, Customer>();
+customerSystem
 .AddLayer(new BenchmarkingLayer<Customer>(loggerFactory))
 .AddLayer(new FluentValidationLayer<Customer>(validator =>
 {
@@ -32,6 +32,11 @@ orderSystem
 .AddLayer(new BenchmarkingLayer<Order>(loggerFactory))
 .AddLayer(new SqlServerSystemLayer<Order>(loggerFactory, connectionString, SchemaMode.CodeFirst, "Orders"));
 
+var itemSystem = new PublicEntitySystem<ItemDto, Item>();
+itemSystem
+.AddLayer(new BenchmarkingLayer<Item>(loggerFactory))
+.AddLayer(new SqlServerSystemLayer<Item>(loggerFactory, connectionString, SchemaMode.CodeFirst, "Items"));
+
 /*for(int i = 0; i < 10000; i++)
 {
 	var balance = (decimal)(new Random().NextDouble()) * 100M;
@@ -41,7 +46,8 @@ orderSystem
 
 
 builder.Services.AddSingleton(orderSystem);
-builder.Services.AddSingleton(userSystem);
+builder.Services.AddSingleton(customerSystem);
+builder.Services.AddSingleton(itemSystem);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
