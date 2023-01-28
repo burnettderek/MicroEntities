@@ -36,11 +36,11 @@ namespace MicroEntities.Utils
 			_logger.LogDebug($"Delete '{EntityName}' completed in {timer.ElapsedMilliseconds}ms.");
 		}
 
-		public async Task<IEnumerable<TEntity>> Select(Where? clause = null, Sort? sort = null)
+		public async Task<IEnumerable<TEntity>> Select(Where? clause = null, Sort? sort = null, Page? pagination = null)
 		{
 			var timer = new Stopwatch();
 			timer.Start();
-			var result = await _layer.Select(clause, sort);
+			var result = await _layer.Select(clause, sort, pagination);
 			timer.Stop();
 			_logger.LogDebug($"Select '{EntityName}' completed in {timer.ElapsedMilliseconds}ms, returning {result?.Count()} records.");
 			return result;

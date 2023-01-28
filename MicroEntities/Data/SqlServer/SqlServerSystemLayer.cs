@@ -87,7 +87,7 @@ namespace MicroEntities.Data.SqlServer
 		}
 
 
-		public async Task<IEnumerable<TEntity>> Select(Where? clause = null, Sort? sort = null)
+		public async Task<IEnumerable<TEntity>> Select(Where? clause = null, Sort? sort = null, Page? pagination = null)
 		{
 			var results = new List<TEntity>();
 			var sql = $"SELECT {GetPropertyString()} FROM {TableName}"; 
@@ -104,6 +104,10 @@ namespace MicroEntities.Data.SqlServer
 			if(sort != null)
 			{
 				sql += ToSql(sort);
+			}
+			if(pagination != null)
+			{
+				sql += ToSql(pagination);
 			}
 			using (var connection = new SqlConnection(ConnectionString))
 			{
@@ -252,6 +256,12 @@ namespace MicroEntities.Data.SqlServer
 				if (property != InputProperties.Last()) builder.Append(", ");
 			}
 			return builder.ToString();
+		}
+
+		private string ToSql(Page pagination)
+		{
+			return $" OFFSET(({pagination.Number}) * {pagination.Size}) ROWS" +
+				   $" FETCH NEXT {pagination.Size} ROWS ONLY";
 		}
 
 		private string ToSql(Sort sort)

@@ -51,13 +51,13 @@ namespace TestBed.Controllers
 			}
 		}
 
-		[HttpGet("/search/{property}/{value}")]
-		public async Task<ActionResult> Select(string property, string value)
+		[HttpGet("/search/{property}/{value}/{page}")]
+		public async Task<ActionResult> Select(string property, string value, int page)
 		{
 			try
 			{
 				var result = await _userSystem.Select(Where.Match(property, value + "%"), 
-													  Sort.Descending("CreatedOn"));
+													  Sort.Descending("CreatedOn"), new Page(page, 10));
 				return Ok(result);
 			}
 			catch (ArgumentException ex)

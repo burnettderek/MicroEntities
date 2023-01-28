@@ -41,7 +41,7 @@ itemSystem
 {
 	var balance = (decimal)(new Random().NextDouble()) * 100M;
 	var customer = new CustomerDto() { FirstName = Guid.NewGuid().ToString(), LastName = Guid.NewGuid().ToString(), Balance = balance };
-	await userSystem.Create(customer);
+	await customerSystem.Create(customer);
 }*/
 
 

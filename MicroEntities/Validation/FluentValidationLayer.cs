@@ -34,9 +34,9 @@ namespace MicroEntities.Validation
 			return _layer.Delete(where);
 		}
 
-		public Task<IEnumerable<TEntity>> Select(Where? clause = null, Sort? sort = null)
+		public Task<IEnumerable<TEntity>> Select(Where? clause = null, Sort? sort = null, Page? pagination = null)
 		{
-			return _layer.Select(clause, sort);
+			return _layer.Select(clause, sort, pagination);
 		}
 
 		

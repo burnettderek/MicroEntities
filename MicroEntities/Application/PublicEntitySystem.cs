@@ -26,9 +26,9 @@ namespace MicroEntities.Application
 			return result;
 		}
 
-		public async Task<IEnumerable<TPublic>> Select(Where? clause = null, Sort? sort = null)
+		public async Task<IEnumerable<TPublic>> Select(Where? clause = null, Sort? sort = null, Page? pagination = null)
 		{
-			var privateEntityList = await _layer.Select(clause, sort);
+			var privateEntityList = await _layer.Select(clause, sort, pagination);
 			var publicEntityList = _mapper.Map<List<TPublic>>(privateEntityList);
 			return publicEntityList;
 		}
