@@ -32,6 +32,11 @@
 			return this;
 		}
 
+		public static void Apply<T>(T entity, Set set)
+		{
+			var property = typeof(T).GetProperty(set.Property);
+			property.SetValue(entity, set.PropertyValue);
+		}
 
 	}
 }

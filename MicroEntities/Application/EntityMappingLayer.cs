@@ -3,9 +3,9 @@ using FluentValidation.Results;
 
 namespace MicroEntities.Application
 {
-	public class PublicEntitySystem<TPublic, TPrivate> : IEntitySystemLayer<TPublic> where TPublic : new() where TPrivate : new()
+	public class EntityMappingLayer<TPublic, TPrivate> : IEntitySystemLayer<TPublic> where TPublic : new() where TPrivate : new()
 	{
-		public PublicEntitySystem()
+		public EntityMappingLayer()
 		{
 			var config = new MapperConfiguration(cfg =>
 			{
@@ -15,7 +15,7 @@ namespace MicroEntities.Application
 			_mapper = new Mapper(config);
 		}
 
-		public PublicEntitySystem(Mapper mapper)
+		public EntityMappingLayer(Mapper mapper)
 		{
 			_mapper = mapper;
 		}
@@ -55,7 +55,7 @@ namespace MicroEntities.Application
 
 		public IEntitySystemLayer<TPublic> AddLayer(IEntitySystemLayer<TPublic> systemLayer)
 		{
-			throw new InvalidOperationException("You should only add layers of a private class to top level systems.");
+			throw new InvalidOperationException("You should only add layers of a private class to mapping layers.");
 		}
 
 		protected IEntitySystemLayer<TPrivate>? _layer;

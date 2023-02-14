@@ -9,7 +9,7 @@ namespace TestBed.Controllers
 	[Route("[controller]")]
 	public class ItemController : Controller
 	{
-		public ItemController(PublicEntitySystem<ItemDto, Item> itemSystem)
+		public ItemController(EntityMappingLayer<ItemDto, Item> itemSystem)
 		{
 			_itemSystem = itemSystem;
 		}
@@ -113,6 +113,6 @@ namespace TestBed.Controllers
 			return Ok();
 		}
 
-		private PublicEntitySystem<ItemDto, Item> _itemSystem;
+		private EntityMappingLayer<ItemDto, Item> _itemSystem;
 	}
 }

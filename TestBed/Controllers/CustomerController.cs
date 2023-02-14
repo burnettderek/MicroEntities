@@ -10,9 +10,9 @@ namespace TestBed.Controllers
 	[Route("[controller]")]
 	public class CustomerController : Controller
 	{
-		public CustomerController(PublicEntitySystem<CustomerDto, Customer> userSystem)
+		public CustomerController(EntityMappingLayer<CustomerDto, Customer> userSystem)
 		{
-			_userSystem = userSystem;
+			_customerSystem = userSystem;
 		}
 
 		[HttpPost]
@@ -20,7 +20,7 @@ namespace TestBed.Controllers
 		{
 			try
 			{
-				var result = await _userSystem.Create(user);
+				var result = await _customerSystem.Create(user);
 				return Ok(result);
 			}
 			catch (ArgumentException ex)
@@ -38,7 +38,7 @@ namespace TestBed.Controllers
 		{
 			try
 			{
-				var result = await _userSystem.Select(Where.Equal("Key", key ));
+				var result = await _customerSystem.Select(Where.Equal("Key", key ));
 				return Ok(result);
 			}
 			catch (ArgumentException ex)
@@ -56,8 +56,8 @@ namespace TestBed.Controllers
 		{
 			try
 			{
-				var result = await _userSystem.Select(Where.Match(property, value + "%"), 
-													  Sort.Descending("CreatedOn"), new Page(page, 10));
+				var result = await _customerSystem.Select(Where.Match(property, value), 
+													  Sort.Ascending("Balance"), new Page(page, 10));
 				return Ok(result);
 			}
 			catch (ArgumentException ex)
@@ -76,7 +76,7 @@ namespace TestBed.Controllers
 		{
 			try
 			{
-				var result = await _userSystem.Update(user, Where.Equal(nameof(user.Key), user.Key));
+				var result = await _customerSystem.Update(user, Where.Equal(nameof(user.Key), user.Key));
 				return Ok(result);
 			}
 			catch (ArgumentException ex)
@@ -96,13 +96,13 @@ namespace TestBed.Controllers
 			{
 				if (!property.Equals("Balance"))
 				{
-					var result = await _userSystem.Update(Set.Value(property, value).And("LastUpdatedOn", DateTime.Now), 
+					var result = await _customerSystem.Update(Set.Value(property, value).And("LastUpdatedOn", DateTime.Now), 
 														  Where.Equal("Key", key));
 					return Ok(result);
 				}
 				else
 				{
-					var result = await _userSystem.Update(Set.Value(property, decimal.Parse(value)).And("LastUpdatedOn", DateTime.Now), 
+					var result = await _customerSystem.Update(Set.Value(property, decimal.Parse(value)).And("LastUpdatedOn", DateTime.Now), 
 														  Where.Equal("Key", key));
 					return Ok(result);
 				}
@@ -123,7 +123,7 @@ namespace TestBed.Controllers
 		{
 			try
 			{
-				await _userSystem.Delete(Where.Equal("Key", value));
+				await _customerSystem.Delete(Where.Equal("Key", value));
 				return Ok();
 			}
 			catch (ArgumentException ex)
@@ -136,6 +136,6 @@ namespace TestBed.Controllers
 			}
 		}
 
-		private PublicEntitySystem<CustomerDto, Customer> _userSystem;
+		private EntityMappingLayer<CustomerDto, Customer> _customerSystem;
 	}
 }

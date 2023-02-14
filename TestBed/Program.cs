@@ -5,6 +5,7 @@ using MicroEntities.Data.SqlServer;
 using MicroEntities.Utils;
 using MicroEntities.Validation;
 using TestBed;
+using MicroEntities.Data.Caching;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +17,8 @@ using var loggerFactory = LoggerFactory.Create(loggingBuilder => loggingBuilder
 									.AddDebug()
 									.AddConsole());
 
-var customerSystem = new PublicEntitySystem<CustomerDto, Customer>();
+var customerCache = new SimpleCachingLayer<Customer>();
+var customerSystem = new EntityMappingLayer<CustomerDto, Customer>();
 customerSystem
 .AddLayer(new BenchmarkingLayer<Customer>(loggerFactory))
 .AddLayer(new FluentValidationLayer<Customer>(validator =>
@@ -25,14 +27,15 @@ customerSystem
 	validator.RuleFor(employee => employee.LastName).Length(1, 50).Matches("^[a-zA-Z0-9-]*$");
 	validator.RuleFor(user => user.Balance).GreaterThanOrEqualTo(0);
 }))
+.AddLayer(customerCache)
 .AddLayer(new SqlServerSystemLayer<Customer>(loggerFactory, connectionString, SchemaMode.CodeFirst, "Customers"));
 
-var orderSystem = new PublicEntitySystem<OrderDto, Order>();
+var orderSystem = new EntityMappingLayer<OrderDto, Order>();
 orderSystem
 .AddLayer(new BenchmarkingLayer<Order>(loggerFactory))
 .AddLayer(new SqlServerSystemLayer<Order>(loggerFactory, connectionString, SchemaMode.CodeFirst, "Orders"));
 
-var itemSystem = new PublicEntitySystem<ItemDto, Item>();
+var itemSystem = new EntityMappingLayer<ItemDto, Item>();
 itemSystem
 .AddLayer(new BenchmarkingLayer<Item>(loggerFactory))
 .AddLayer(new SqlServerSystemLayer<Item>(loggerFactory, connectionString, SchemaMode.CodeFirst, "Items"));
@@ -44,6 +47,7 @@ itemSystem
 	await customerSystem.Create(customer);
 }*/
 
+await customerCache.Load();
 
 builder.Services.AddSingleton(orderSystem);
 builder.Services.AddSingleton(customerSystem);

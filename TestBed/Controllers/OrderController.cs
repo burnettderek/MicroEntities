@@ -9,7 +9,7 @@ namespace TestBed.Controllers
 	[Route("[controller]")]
 	public class OrderController : Controller
 	{
-		public OrderController(PublicEntitySystem<OrderDto, Order> orderSystem)
+		public OrderController(EntityMappingLayer<OrderDto, Order> orderSystem)
 		{
 			_orderSystem = orderSystem;
 		}
@@ -113,6 +113,6 @@ namespace TestBed.Controllers
 			return Ok();
 		}
 
-		private PublicEntitySystem<OrderDto, Order> _orderSystem;
+		private EntityMappingLayer<OrderDto, Order> _orderSystem;
 	}
 }

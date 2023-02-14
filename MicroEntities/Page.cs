@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Collections.Generic;
 
 namespace MicroEntities
 {
@@ -13,5 +14,12 @@ namespace MicroEntities
 
 		public int Size { get; set; }
 		public int Number { get; set; }
+
+		public static IEnumerable<T> Paginate<T>(IEnumerable<T> entities, Page page)
+		{
+			return entities.Skip(page.Number * page.Size).Take(page.Size);
+		}
 	}
+
+	
 }
