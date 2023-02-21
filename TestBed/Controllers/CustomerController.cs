@@ -38,7 +38,7 @@ namespace TestBed.Controllers
 		{
 			try
 			{
-				var result = await _customerSystem.Select(Where.Equal("Key", key ));
+				var result = await _customerSystem.Select(Where.Equal(nameof(Customer.Key), key ));
 				return Ok(result);
 			}
 			catch (ArgumentException ex)
@@ -52,12 +52,12 @@ namespace TestBed.Controllers
 		}
 
 		[HttpGet("/search/{property}/{value}/{page}")]
-		public async Task<ActionResult> Select(string property, string value, int page)
+		public async Task<ActionResult> Select(string property, string? value, int page)
 		{
 			try
 			{
-				var result = await _customerSystem.Select(Where.Match(property, value), 
-													  Sort.Ascending("Balance"), new Page(page, 10));
+				var result = await _customerSystem.Select(Where.Match(property, null), 
+													  Sort.Ascending(nameof(Customer.Balance)), new Page(page, 10));
 				return Ok(result);
 			}
 			catch (ArgumentException ex)
@@ -96,14 +96,14 @@ namespace TestBed.Controllers
 			{
 				if (!property.Equals("Balance"))
 				{
-					var result = await _customerSystem.Update(Set.Value(property, value).And("LastUpdatedOn", DateTime.Now), 
-														  Where.Equal("Key", key));
+					var result = await _customerSystem.Update(Set.Value(property, value).And(nameof(Customer.LastUpdatedOn), DateTime.Now), 
+														  Where.Equal(nameof(Customer.Key), new Guid(key)));
 					return Ok(result);
 				}
 				else
 				{
 					var result = await _customerSystem.Update(Set.Value(property, decimal.Parse(value)).And("LastUpdatedOn", DateTime.Now), 
-														  Where.Equal("Key", key));
+														  Where.Equal(nameof(Customer.Key), new Guid(key)));
 					return Ok(result);
 				}
 			}
@@ -123,7 +123,7 @@ namespace TestBed.Controllers
 		{
 			try
 			{
-				await _customerSystem.Delete(Where.Equal("Key", value));
+				await _customerSystem.Delete(Where.Equal(nameof(Customer.Key), value));
 				return Ok();
 			}
 			catch (ArgumentException ex)

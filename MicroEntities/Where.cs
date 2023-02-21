@@ -66,7 +66,7 @@ namespace MicroEntities
 		{
 			return new Where(property, Operator.LessThanOrEqual, value);
 		}
-		public static Where Match(string property, object value)
+		public static Where Match(string property, object? value)
 		{
 			return new Where(property, Operator.Matches, value);
 		}
@@ -439,14 +439,13 @@ namespace MicroEntities
 		{
 			return collection.Where(entity => 
 			{
-				string pattern = "^" + value + ".*";
-				var current = typeof(TEntity).GetProperty(property)?.GetValue(entity).ToString();
-				if (current != null)
+				var current = typeof(TEntity).GetProperty(property)?.GetValue(entity);
+				if (current != null && value != null)
 				{
-					var match = Regex.IsMatch(current, pattern);
+					var match = Regex.IsMatch(current.ToString(), value.ToString());
 					return match;
 				}
-				return value == null;
+				return value == current; //current was null, so value must be null as well.
 			});
 		}
 	}

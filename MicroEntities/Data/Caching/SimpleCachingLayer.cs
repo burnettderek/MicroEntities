@@ -42,6 +42,8 @@ namespace MicroEntities.Data.Caching
 				}
 				clause = clause.AndClause;
 			}
+			if(_subLayer != null)
+			 await _subLayer.Delete(where);
 		}
 
 		public async Task<IEnumerable<TEntity>> Select(Where? clause = null, Sort? sort = null, Page? pagination = null)
@@ -76,6 +78,7 @@ namespace MicroEntities.Data.Caching
 				}
 				clause = clause.AndClause;
 			}
+			if(_subLayer != null) return await _subLayer.Update(entity, where);
 			return new ValidationResult();
 		}
 
@@ -96,6 +99,7 @@ namespace MicroEntities.Data.Caching
 				}
 				clause = clause.AndClause;
 			}
+			if (_subLayer != null) return await _subLayer.Update(set, where);
 			return new ValidationResult();
 		}
 

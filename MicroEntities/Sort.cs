@@ -48,6 +48,8 @@ namespace MicroEntities
 						return collection.OrderBy(a => (bool?)prop.GetValue(a));
 					if (type == typeof(decimal))
 						return collection.OrderBy(a => (decimal?)prop.GetValue(a));
+					if (type == typeof(long))
+						return collection.OrderBy(a => (long?)prop.GetValue(a));
 				}
 				if (!type.IsNullableType())
 				{
@@ -63,6 +65,8 @@ namespace MicroEntities
 						return collection.OrderBy(a => (bool)prop.GetValue(a));
 					if (type == typeof(decimal))
 						return collection.OrderBy(a => (decimal)prop.GetValue(a));
+					if (type == typeof(long))
+						return collection.OrderBy(a => (long)prop.GetValue(a));
 				}
 			}
 			if(sort.Direction == SortDirection.Descending)
@@ -82,6 +86,8 @@ namespace MicroEntities
 						return collection.OrderByDescending(a => (bool?)prop.GetValue(a));
 					if (type == typeof(decimal))
 						return collection.OrderByDescending(a => (decimal?)prop.GetValue(a));
+					if (type == typeof(long))
+						return collection.OrderByDescending(a => (long?)prop.GetValue(a));
 				}
 				if (!type.IsNullableType())
 				{
@@ -97,9 +103,10 @@ namespace MicroEntities
 						return collection.OrderByDescending(a => (bool)prop.GetValue(a));
 					if (type == typeof(decimal))
 						return collection.OrderByDescending(a => (decimal)prop.GetValue(a));
+					if (type == typeof(long))
+						return collection.OrderByDescending(a => (long)prop.GetValue(a));
 				}
 			}
-
 			throw new ArgumentException($"Type {type} is not supported.");
 		}
 
