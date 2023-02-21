@@ -9,14 +9,13 @@ Create a SQL Server data layer for object 'User' using table 'Users' for storage
 var dataLayer = new SqlServerSystemLayer<User>("server=[server_name];database=[database_name];Trusted_Connection=SSPI", "Users");
 ```
 
-Create a validation layer for 'User' which validates the username, password, and balance fields: 
+Create a validation layer for 'User' which validates the username, password fields: 
 
 ```sh
 var validationLayer = new FluentValidationLayer<User>(validator =>
 {
 	validator.RuleFor(user => user.UserName).Length(1, 50).Matches("^[a-zA-Z'., -]*$");
 	validator.RuleFor(user => user.Password).Length(1, 50).Matches("^[a-zA-Z0-9]*$");
-	validator.RuleFor(user => user.Balance).GreaterThanOrEqualTo(0);
 });
 ```
 
@@ -29,13 +28,13 @@ var benchmarkingLayer = new BenchmarkingLayer<User>();
 Create a public layer which maps the internal object to one used for the public web service:
 
 ```sh
-var userSystem = new PublicEntitySystem<UserDto, User>();
+var userSystem = new EntityMappingLayer<UserDto, User>();
 ```
 
-Create an entire stack for object 'User', with database, benchmarking and validation:
+Create an entire stack for object 'User', with database, benchmarking, validation and DTO mapping:
 
 ```sh
-var userSystem = new PublicEntitySystem<UserDto, User>();
+var userSystem = new EntityMappingLayer<UserDto, User>();
 
 userSystem
 .AddLayer(new BenchmarkingLayer<User>())
@@ -79,7 +78,7 @@ public async Task<ActionResult> Read(Guid key)
 {
 	try
 	{
-		var result = await _userSystem.Select(Where.Equal("Key", key ));
+		var result = await _userSystem.Select(Where.Equal(nameof(User.Key), key ));
 		return Ok(result);
 	}
 	catch (ArgumentException ex)
@@ -153,7 +152,7 @@ public async Task<ActionResult> Delete(Guid value)
 {
 	try
 	{
-		await _userSystem.Delete(Where.Equal("Key", value));
+		await _userSystem.Delete(Where.Equal(nameof(User.Key), value));
 		return Ok();
 	}
 	catch (ArgumentException ex)
