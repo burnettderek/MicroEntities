@@ -166,4 +166,11 @@ public async Task<ActionResult> Delete(Guid value)
 }
 ```
 
+## Features
+***
+* Reading and writing to SQL Server database.
+* Benchmarking of operations.
+* Powerful Select and Update operations.
+* 'Code First' like functionality that automatically generates the database tables needed to store your objects.
+* Simple caching layer for entities that change infrequently.
 
