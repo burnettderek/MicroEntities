@@ -8,11 +8,11 @@ using System.Text;
 
 namespace MicroEntities.Data.SqlServer
 {
-	internal class SqlServerSchemaEnforcer<TEntity>
+	internal class SqlServerSchemaEnforcer<TEntity> where TEntity : new()
 	{
-		public SqlServerSchemaEnforcer(ILoggerFactory logFactory, string connectionString, string tableName)
+		public SqlServerSchemaEnforcer(ILogger<SqlServerSystemLayer<TEntity>> log, string connectionString, string tableName)
 		{
-			_log = logFactory.CreateLogger<SqlServerSchemaEnforcer<TEntity>>();
+			_log = log;
 			_connectionString = connectionString;
 			_tableName = tableName;
 			Properties = typeof(TEntity).GetProperties().ToList();
@@ -172,11 +172,11 @@ namespace MicroEntities.Data.SqlServer
 				return $"{_typeMap[dotNetType]}({maxStorageSize.SizeInBytes})";
 		}
 
-		protected readonly ILogger<SqlServerSchemaEnforcer<TEntity>> _log;
+		protected readonly ILogger<SqlServerSystemLayer<TEntity>> _log;
 		protected readonly string _connectionString;
 		protected readonly string _tableName;
-		protected List<PropertyInfo> Properties = new List<PropertyInfo>();
-		protected List<PropertyInfo> InputProperties = new List<PropertyInfo>();
-		protected Dictionary<string, string> _typeMap = new Dictionary<string, string>();
+		protected List<PropertyInfo> Properties = new();
+		protected List<PropertyInfo> InputProperties = new();
+		protected Dictionary<string, string> _typeMap = new();
 	}
 }

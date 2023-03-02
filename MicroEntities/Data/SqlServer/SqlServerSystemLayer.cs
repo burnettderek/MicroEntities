@@ -10,9 +10,9 @@ namespace MicroEntities.Data.SqlServer
 {
     public class SqlServerSystemLayer<TEntity> : IEntitySystemLayer<TEntity> where TEntity: new()
     {
-        public SqlServerSystemLayer(ILoggerFactory logFactory, string connectionString, SchemaMode mode = SchemaMode.DataFirst, string? tableName = null)
+        public SqlServerSystemLayer(ILogger<SqlServerSystemLayer<TEntity>> log, string connectionString, SchemaMode mode = SchemaMode.DataFirst, string? tableName = null)
         {
-			_log = logFactory.CreateLogger<SqlServerSystemLayer<TEntity>>();
+			_log = log;
             ConnectionString = connectionString;
             Properties = typeof(TEntity).GetProperties().ToList();
             InputProperties = Properties.Where(prop => !(prop.GetCustomAttributes(typeof(ReadOnly), true).Length > 0)).ToList();
@@ -20,7 +20,7 @@ namespace MicroEntities.Data.SqlServer
                 TableName = typeof(TEntity).Name;
             else TableName = tableName;
 			if (mode == SchemaMode.CodeFirst)
-				EnforceSchema(logFactory);
+				EnforceSchema();
         }
 
         public async Task<CreationResult> Create(TEntity entity)
@@ -336,9 +336,9 @@ namespace MicroEntities.Data.SqlServer
 			return result;
 		}
 
-		private void EnforceSchema(ILoggerFactory logFactory)
+		private void EnforceSchema()
 		{
-			var enforcer = new SqlServerSchemaEnforcer<TEntity>(logFactory, ConnectionString, TableName);
+			var enforcer = new SqlServerSchemaEnforcer<TEntity>(_log, ConnectionString, TableName);
 			enforcer.EnforceSchema().GetAwaiter().GetResult();
 		}
 

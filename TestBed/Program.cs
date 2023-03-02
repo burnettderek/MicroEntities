@@ -20,25 +20,25 @@ using var loggerFactory = LoggerFactory.Create(loggingBuilder => loggingBuilder
 var customerCache = new SimpleCachingLayer<Customer>();
 var customerSystem = new EntityMappingLayer<CustomerDto, Customer>();
 customerSystem
-.AddLayer(new BenchmarkingLayer<Customer>(loggerFactory))
+.AddLayer(new BenchmarkingLayer<Customer>(loggerFactory.CreateLogger<BenchmarkingLayer<Customer>>()))
 .AddLayer(new FluentValidationLayer<Customer>(validator =>
 {
-	validator.RuleFor(employee => employee.FirstName).Length(1, 50).Matches("^[a-zA-Z0-9'., -]*$");
-	validator.RuleFor(employee => employee.LastName).Length(1, 50).Matches("^[a-zA-Z0-9-]*$");
-	validator.RuleFor(user => user.Balance).GreaterThanOrEqualTo(0);
+	validator.RuleFor(customer => customer.FirstName).NotNull().Length(1, 50).Matches("^[a-zA-Z0-9'., -]*$");
+	validator.RuleFor(customer => customer.LastName).NotNull().Length(1, 50).Matches("^[a-zA-Z0-9-]*$");
+	validator.RuleFor(customer => customer.Balance).GreaterThanOrEqualTo(0);
 }))
 .AddLayer(customerCache)
-.AddLayer(new SqlServerSystemLayer<Customer>(loggerFactory, connectionString, SchemaMode.CodeFirst, "Customers"));
+.AddLayer(new SqlServerSystemLayer<Customer>(loggerFactory.CreateLogger<SqlServerSystemLayer<Customer>>(), connectionString, SchemaMode.CodeFirst, "Customers"));
 
 var orderSystem = new EntityMappingLayer<OrderDto, Order>();
 orderSystem
-.AddLayer(new BenchmarkingLayer<Order>(loggerFactory))
-.AddLayer(new SqlServerSystemLayer<Order>(loggerFactory, connectionString, SchemaMode.CodeFirst, "Orders"));
+.AddLayer(new BenchmarkingLayer<Order>(loggerFactory.CreateLogger<BenchmarkingLayer<Order>>()))
+.AddLayer(new SqlServerSystemLayer<Order>(loggerFactory.CreateLogger<SqlServerSystemLayer<Order>>(), connectionString, SchemaMode.CodeFirst, "Orders"));
 
 var itemSystem = new EntityMappingLayer<ItemDto, Item>();
 itemSystem
-.AddLayer(new BenchmarkingLayer<Item>(loggerFactory))
-.AddLayer(new SqlServerSystemLayer<Item>(loggerFactory, connectionString, SchemaMode.CodeFirst, "Items"));
+.AddLayer(new BenchmarkingLayer<Item>(loggerFactory.CreateLogger<BenchmarkingLayer<Item>>()))
+.AddLayer(new SqlServerSystemLayer<Item>(loggerFactory.CreateLogger<SqlServerSystemLayer<Item>>(), connectionString, SchemaMode.CodeFirst, "Items"));
 
 /*for(int i = 0; i < 10000; i++)
 {
