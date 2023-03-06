@@ -12,6 +12,9 @@ namespace TestBed
 		[Default(Default.Func.NewGuid)]
 		[PrimaryKey]
 		public Guid Id { get; set; }
+
+		[PrimaryKey]
+		public int Sector { get; set; }
 		
 		[ForeignKey("Customers", "Key")] 
 		public Guid CustomerKey { get; set; }

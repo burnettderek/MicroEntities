@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Data;
 using System.Data.SqlClient;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace MicroEntities.Data.SqlServer
@@ -54,12 +55,25 @@ namespace MicroEntities.Data.SqlServer
 		private string GetPropertyString()
 		{
 			var builder = new StringBuilder();
+			var primaryKeys = new List<string>();
 			foreach (var property in Properties)
 			{
 				var maxStorageSize = property.GetCustomAttributes(typeof(MaxStorageSize), true).FirstOrDefault() as MaxStorageSize;
+				var primaryKey = property.GetCustomAttributes(typeof(PrimaryKey), true).FirstOrDefault() as PrimaryKey;
+				if (primaryKey != null) primaryKeys.Add(property.Name);
 				string type = GetType(property, maxStorageSize);
 				builder.Append($"\n[{property.Name}] {type}");
 				if (property != Properties.Last()) builder.Append(",");
+			}
+			if(primaryKeys.Count > 0)
+			{
+				builder.Append(",\nPRIMARY KEY(");
+				foreach(var key in primaryKeys)
+				{
+					builder.Append($"[{key}]" );
+					if(key != primaryKeys.Last()) builder.Append(", ");
+				}
+				builder.Append(")");
 			}
 			return builder.ToString();
 		}
@@ -85,11 +99,6 @@ namespace MicroEntities.Data.SqlServer
 			var id = property.GetCustomAttributes(typeof(Identity), true).FirstOrDefault() as Identity;
 			if(id != null)
 				constraints.Add($"IDENTITY({id.Seed}, {id.Increment})");
-			var primaryKey = property.GetCustomAttributes(typeof(PrimaryKey), true).FirstOrDefault() as PrimaryKey;
-			if (primaryKey != null)
-			{
-				constraints.Add($"PRIMARY KEY");
-			}
 			var defaultValue = property.GetCustomAttributes(typeof(Default), true).FirstOrDefault() as Default;
 			if(defaultValue != null)
 			{
